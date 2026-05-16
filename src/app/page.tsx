@@ -1,171 +1,366 @@
 "use client";
 
-import React, { lazy, Suspense, memo, useState, useCallback } from "react";
+import React, { lazy, Suspense, useState } from "react";
 import {
   LayoutDashboard,
-    TrendingUp,
-      Users,
-        DollarSign,
-          Activity,
-            Menu,
-            } from "lucide-react";
-            import {
-              Chart as ChartJS,
-                CategoryScale,
-                  LinearScale,
-                    PointElement,
-                      LineElement,
-                        BarElement,
-                          ArcElement,
-                            Tooltip,
-                              Legend,
-                              } from "chart.js";
+  TrendingUp,
+  Users,
+  DollarSign,
+  Activity,
+  Menu,
+} from "lucide-react";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Tooltip,
+  Legend,
+} from "chart.js";
 
-                              ChartJS.register(
-                                CategoryScale,
-                                  LinearScale,
-                                    PointElement,
-                                      LineElement,
-                                        BarElement,
-                                          ArcElement,
-                                            Tooltip,
-                                              Legend
-                                              );
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Tooltip,
+  Legend,
+);
 
-                                              const Line = lazy(() =>
-                                                import("react-chartjs-2").then((mod) => ({ default: mod.Line }))
-                                                );
-                                                const Bar = lazy(() =>
-                                                  import("react-chartjs-2").then((mod) => ({ default: mod.Bar }))
-                                                  );
-                                                  const Doughnut = lazy(() =>
-                                                    import("react-chartjs-2").then((mod) => ({ default: mod.Doughnut }))
-                                                    );
+const Line = lazy(() =>
+  import("react-chartjs-2").then((m) => ({ default: m.Line })),
+);
+const Bar = lazy(() =>
+  import("react-chartjs-2").then((m) => ({ default: m.Bar })),
+);
+const Doughnut = lazy(() =>
+  import("react-chartjs-2").then((m) => ({ default: m.Doughnut })),
+);
 
-                                                    const sampleData = {
-                                                      monthlyRevenue: {
-                                                          labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-                                                              datasets: [
-                                                                    {
-                                                                            label: "Revenue ($)",
-                                                                                    data: [12000, 19000, 15000, 21000, 24000, 28000],
-                                                                                            borderColor: "rgb(75, 192, 192)",
-                                                                                                    backgroundColor: "rgba(75, 192, 192, 0.2)",
-                                                                                                            fill: true,
-                                                                                                                    tension: 0.4,
-                                                                                                                          },
-                                                                                                                              ],
-                                                                                                                                },
-                                                                                                                                  userSignups: {
-                                                                                                                                      labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-                                                                                                                                          datasets: [
-                                                                                                                                                {
-                                                                                                                                                        label: "New Users",
-                                                                                                                                                                data: [200, 450, 350, 520, 480, 610],
-                                                                                                                                                                        backgroundColor: "rgba(54, 162, 235, 0.7)",
-                                                                                                                                                                              },
-                                                                                                                                                                                  ],
-                                                                                                                                                                                    },
-                                                                                                                                                                                      expenseBreakdown: {
-                                                                                                                                                                                          labels: ["Salaries", "Marketing", "Infrastructure", "Others"],
-                                                                                                                                                                                              datasets: [
-                                                                                                                                                                                                    {
-                                                                                                                                                                                                            data: [45000, 22000, 12000, 8000],
-                                                                                                                                                                                                                    backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0"],
-                                                                                                                                                                                                                          },
-                                                                                                                                                                                                                              ],
-                                                                                                                                                                                                                                },
-                                                                                                                                                                                                                                  recentTransactions: [
-                                                                                                                                                                                                                                      { id: 1, customer: "Alice Johnson", amount: "$1,200", status: "Completed", date: "2026-05-10" },
-                                                                                                                                                                                                                                          { id: 2, customer: "Bob Smith", amount: "$850", status: "Pending", date: "2026-05-09" },
-                                                                                                                                                                                                                                              { id: 3, customer: "Carol White", amount: "$2,300", status: "Completed", date: "2026-05-08" },
-                                                                                                                                                                                                                                                  { id: 4, customer: "Dave Lee", amount: "$430", status: "Failed", date: "2026-05-07" },
-                                                                                                                                                                                                                                                      { id: 5, customer: "Eva Brown", amount: "$1,750", status: "Completed", date: "2026-05-06" },
-                                                                                                                                                                                                                                                        ],
-                                                                                                                                                                                                                                                        };
+const sampleData = {
+  monthlyRevenue: {
+    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+    datasets: [
+      {
+        label: "Revenue ($)",
+        data: [12000, 19000, 15000, 21000, 24000, 28000],
+        borderColor: "rgb(75,192,192)",
+        backgroundColor: "rgba(75,192,192,0.2)",
+        fill: true,
+        tension: 0.4,
+      },
+    ],
+  },
+  userSignups: {
+    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+    datasets: [
+      {
+        label: "New Users",
+        data: [200, 450, 350, 520, 480, 610],
+        backgroundColor: "rgba(54,162,235,0.7)",
+      },
+    ],
+  },
+  expenseBreakdown: {
+    labels: ["Salaries", "Marketing", "Infrastructure", "Others"],
+    datasets: [
+      {
+        data: [45000, 22000, 12000, 8000],
+        backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0"],
+      },
+    ],
+  },
+  recentTransactions: [
+    {
+      id: 1,
+      customer: "Alice Johnson",
+      amount: "$1,200",
+      status: "Completed",
+      date: "2026-05-10",
+    },
+    {
+      id: 2,
+      customer: "Bob Smith",
+      amount: "$850",
+      status: "Pending",
+      date: "2026-05-09",
+    },
+    {
+      id: 3,
+      customer: "Carol White",
+      amount: "$2,300",
+      status: "Completed",
+      date: "2026-05-08",
+    },
+    {
+      id: 4,
+      customer: "Dave Lee",
+      amount: "$430",
+      status: "Failed",
+      date: "2026-05-07",
+    },
+    {
+      id: 5,
+      customer: "Eva Brown",
+      amount: "$1,750",
+      status: "Completed",
+      date: "2026-05-06",
+    },
+  ],
+};
 
-                                                                                                                                                                                                                                                        const FinTechDashboard = memo(function FinTechDashboard() {
-                                                                                                                                                                                                                                                          const [sidebarOpen, setSidebarOpen] = useState(true);
-                                                                                                                                                                                                                                                            const toggleSidebar = useCallback(() => setSidebarOpen((prev) => !prev), []);
+const getStatusClass = (status: string) => {
+  switch (status) {
+    case "Completed":
+      return "bg-green-100 text-green-700";
+    case "Pending":
+      return "bg-yellow-100 text-yellow-700";
+    case "Failed":
+      return "bg-red-100 text-red-700";
+    default:
+      return "bg-gray-100 text-gray-700";
+  }
+};
 
-                                                                                                                                                                                                                                                              return (
-                                                                                                                                                                                                                                                                  <div className="flex h-screen bg-gray-100">
-                                                                                                                                                                                                                                                                        {/* Skip‑to‑content link */}
-                                                                                                                                                                                                                                                                              <a
-                                                                                                                                                                                                                                                                                      href="#main-content"
-                                                                                                                                                                                                                                                                                              className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:px-4 focus:py-2 focus:text-blue-700 focus:shadow-lg focus:outline-none"
-                                                                                                                                                                                                                                                                                                    >
-                                                                                                                                                                                                                                                                                                            Skip to main content
-                                                                                                                                                                                                                                                                                                                  </a>
+function SidebarItem({
+  icon,
+  text,
+  active,
+  sidebarOpen,
+}: {
+  icon: React.ReactNode;
+  text: string;
+  active?: boolean;
+  sidebarOpen: boolean;
+}) {
+  return (
+    <div
+      className={`flex items-center gap-3 p-2 rounded cursor-pointer ${
+        active ? "bg-blue-700" : "hover:bg-blue-800"
+      }`}
+      role="button"
+      tabIndex={0}
+      aria-label={text}
+    >
+      {icon}
+      {sidebarOpen && <span className="text-sm">{text}</span>}
+    </div>
+  );
+}
 
-                                                                                                                                                                                                                                                                                                                        {/* Sidebar */}
-                                                                                                                                                                                                                                                                                                                              <aside
-                                                                                                                                                                                                                                                                                                                                      aria-label="Primary navigation"
-                                                                                                                                                                                                                                                                                                                                              className={`${sidebarOpen ? "w-64" : "w-20"} flex flex-col bg-blue-900 p-4 text-white transition-all duration-300`}
-                                                                                                                                                                                                                                                                                                                                                    >
-                                                                                                                                                                                                                                                                                                                                                            <div className="mb-8 flex items-center justify-between">
-                                                                                                                                                                                                                                                                                                                                                                      {sidebarOpen && <span className="text-xl font-bold" aria-hidden="true">FinDash</span>}
-                                                                                                                                                                                                                                                                                                                                                                                <button
-                                                                                                                                                                                                                                                                                                                                                                                            type="button"
-                                                                                                                                                                                                                                                                                                                                                                                                        onClick={toggleSidebar}
-                                                                                                                                                                                                                                                                                                                                                                                                                    aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
-                                                                                                                                                                                                                                                                                                                                                                                                                                aria-expanded={sidebarOpen}
-                                                                                                                                                                                                                                                                                                                                                                                                                                            className="rounded p-1 hover:bg-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                      >
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <Menu size={20} aria-hidden="true" />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </button>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </div>
+function StatCard({
+  title,
+  value,
+  change,
+  icon,
+}: {
+  title: string;
+  value: string;
+  change: string;
+  icon: React.ReactNode;
+}) {
+  const isPositive = change.startsWith("+");
+  return (
+    <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-shadow duration-300 flex items-center justify-between">
+      <div>
+        <div className="text-xs text-gray-500">{title}</div>
+        <div className="text-2xl font-semibold mt-1">{value}</div>
+        <div className="text-sm mt-1 flex items-center gap-2">
+          <span
+            className={`text-xs ${isPositive ? "text-green-600" : "text-red-600"}`}
+          >
+            {isPositive ? "▲" : "▼"}
+          </span>
+          <span className="text-gray-500">{change}</span>
+        </div>
+      </div>
+      <div className="text-blue-600">{icon}</div>
+    </div>
+  );
+}
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <nav role="navigation" aria-label="Dashboard sections" className="flex-1 space-y-2">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      <SidebarItem icon={<LayoutDashboard size={18} />} text="Dashboard" active sidebarOpen={sidebarOpen} />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <SidebarItem icon={<TrendingUp size={18} />} text="Analytics" sidebarOpen={sidebarOpen} />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <SidebarItem icon={<Users size={18} />} text="Customers" sidebarOpen={sidebarOpen} />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <SidebarItem icon={<DollarSign size={18} />} text="Revenue" sidebarOpen={sidebarOpen} />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <SidebarItem icon={<Activity size={18} />} text="Reports" sidebarOpen={sidebarOpen} />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </nav>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </aside>
+export default function FinTechDashboard() {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  {/* Main content */}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <main id="main-content" aria-label="FinTech dashboard" tabIndex={-1} className="flex-1 overflow-y-auto p-6 focus-visible:outline-none">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                {/* KPI cards */}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <section aria-label="Key performance indicators">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <StatCard title="Total Users" value="12,480" change="+12.5%" icon={<Users size={20} aria-hidden="true" />} />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <StatCard title="Revenue" value="$48,500" change="+8.2%" icon={<DollarSign size={20} aria-hidden="true" />} />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      <StatCard title="Transactions" value="1,823" change="+15.3%" icon={<Activity size={20} aria-hidden="true" />} />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <StatCard title="Growth" value="23.6%" change="+5.1%" icon={<TrendingUp size={20} aria-hidden="true" />} />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </section>
+  return (
+    <div className="min-h-screen bg-gray-100 text-gray-800">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-white p-2 rounded shadow"
+        aria-label="Skip to content"
+      >
+        Skip to content
+      </a>
+      <div className="flex">
+        <aside
+          className={`${sidebarOpen ? "w-64" : "w-20"} bg-blue-900 text-white transition-all duration-300 p-4 flex flex-col`}
+          aria-label="Sidebar navigation"
+        >
+          <div className="flex items-center justify-between mb-6">
+            {sidebarOpen && <h1 className="text-xl font-bold">FinDash</h1>}
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 hover:bg-blue-800 rounded"
+              aria-label="Toggle sidebar"
+            >
+              <Menu size={20} />
+            </button>
+          </div>
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            {/* Revenue + Expense charts */}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <section aria-label="Revenue and expense charts" className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <div className="rounded-lg bg-white p-4 shadow lg:col-span-2">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <h2 className="mb-4 text-lg font-semibold text-gray-800">Monthly Revenue</h2>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      <Suspense fallback={<ChartSkeleton label="Monthly Revenue" />}>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <Line data={sampleData.monthlyRevenue} options={{ responsive: true }} aria-label="Monthly revenue line chart" />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </Suspense>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <div className="rounded-lg bg-white p-4 shadow">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <h2 className="mb-4 text-lg font-semibold text-gray-800">Expense Breakdown</h2>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <Suspense fallback={<ChartSkeleton label="Expense Breakdown" />}>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <Doughnut data={sampleData.expenseBreakdown} options={{ responsive: true }} aria-label="Expense breakdown doughnut chart" />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </Suspense>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        </section>
+          <nav className="flex-1 space-y-2" aria-label="Main">
+            <SidebarItem
+              icon={<LayoutDashboard size={18} />}
+              text="Dashboard"
+              active
+              sidebarOpen={sidebarOpen}
+            />
+            <SidebarItem
+              icon={<TrendingUp size={18} />}
+              text="Analytics"
+              sidebarOpen={sidebarOpen}
+            />
+            <SidebarItem
+              icon={<Users size={18} />}
+              text="Customers"
+              sidebarOpen={sidebarOpen}
+            />
+            <SidebarItem
+              icon={<DollarSign size={18} />}
+              text="Revenue"
+              sidebarOpen={sidebarOpen}
+            />
+            <SidebarItem
+              icon={<Activity size={18} />}
+              text="Reports"
+              sidebarOpen={sidebarOpen}
+            />
+          </nav>
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                {/* User signups chart */}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <section aria-label="User signups chart" className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <div className="rounded-lg bg-white p-4 shadow">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <h2 className="mb-4 text-lg font-semibold text-gray-800">User Signups</h2>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <Suspense fallback={<ChartSkeleton label="User Signups" />}>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <Bar data={sampleData.userSignups} options={{ responsive: true }} aria-label="User signups bar chart" />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </Suspense>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </section>
+          <div className="mt-4 text-xs text-blue-200">
+            © {new Date().getFullYear()} FinDash
+          </div>
+        </aside>
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              {/* Recent transactions */}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      <section aria-label="Recent transactions">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                <div className="rounded-lg bg-white p-4 shadow">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <h2 className="mb-4 text-lg font-semibold text-gray-800">Recent Transactions</h2>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <div role="region" aria-label="Transactions table, scroll right to see all columns" className="overflow-x-auto">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      <table className="min-w-full text-left text-sm" aria-label="Recent 
+        <main
+          id="main-content"
+          className="flex-1 p-6"
+          aria-label="Main content"
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <StatCard
+              title="Total Users"
+              value="12,480"
+              change="+12.5%"
+              icon={<Users size={20} />}
+            />
+            <StatCard
+              title="Revenue"
+              value="$48,500"
+              change="+8.2%"
+              icon={<DollarSign size={20} />}
+            />
+            <StatCard
+              title="Transactions"
+              value="1,823"
+              change="+15.3%"
+              icon={<Activity size={20} />}
+            />
+            <StatCard
+              title="Growth"
+              value="23.6%"
+              change="+5.1%"
+              icon={<TrendingUp size={20} />}
+            />
+          </div>
+
+          <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <div className="bg-white p-4 rounded-lg shadow lg:col-span-2">
+              <h2 className="text-lg font-semibold mb-4">Monthly Revenue</h2>
+              <Suspense
+                fallback={
+                  <div className="h-80 w-full bg-gray-200 animate-pulse rounded-lg" />
+                }
+              >
+                <Line
+                  data={sampleData.monthlyRevenue as any}
+                  options={{ responsive: true }}
+                />
+              </Suspense>
+            </div>
+
+            <div className="bg-white p-4 rounded-lg shadow">
+              <h2 className="text-lg font-semibold mb-4">Expense Breakdown</h2>
+              <Suspense
+                fallback={
+                  <div className="h-80 w-full bg-gray-200 animate-pulse rounded-lg" />
+                }
+              >
+                <Doughnut
+                  data={sampleData.expenseBreakdown as any}
+                  options={{ responsive: true }}
+                />
+              </Suspense>
+            </div>
+          </section>
+
+          <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div className="bg-white p-4 rounded-lg shadow">
+              <h2 className="text-lg font-semibold mb-4">User Signups</h2>
+              <Suspense
+                fallback={
+                  <div className="h-80 w-full bg-gray-200 animate-pulse rounded-lg" />
+                }
+              >
+                <Bar
+                  data={sampleData.userSignups as any}
+                  options={{ responsive: true }}
+                />
+              </Suspense>
+            </div>
+          </section>
+
+          <section className="bg-white p-4 rounded-lg shadow">
+            <h2 className="text-lg font-semibold mb-4">Recent Transactions</h2>
+            <div className="overflow-x-auto">
+              <table
+                className="min-w-full text-left"
+                role="table"
+                aria-label="Recent transactions"
+              >
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="p-3">Customer</th>
+                    <th className="p-3">Amount</th>
+                    <th className="p-3">Status</th>
+                    <th className="p-3">Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sampleData.recentTransactions.map((txn) => (
+                    <tr key={txn.id} className="border-t">
+                      <td className="p-3">{txn.customer}</td>
+                      <td className="p-3">{txn.amount}</td>
+                      <td className="p-3">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs ${getStatusClass(txn.status)}`}
+                        >
+                          {txn.status}
+                        </span>
+                      </td>
+                      <td className="p-3">{txn.date}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+  );
+}
